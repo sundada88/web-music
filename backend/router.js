@@ -354,6 +354,7 @@ function registerSingerDetail (app) {
       if (data.code === ERR_OK) {
         const list = data.singerSongList.data.songList
         // 歌单详情、榜单详情接口都有类似处理逻辑，固封装成函数
+        // eslint-disable-next-line no-unused-vars
         const songList = handleSongList(list)
 
         res.json({

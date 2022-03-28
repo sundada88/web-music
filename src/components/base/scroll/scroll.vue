@@ -4,8 +4,9 @@
   </div>
 </template>
 
-<script>import useScroll from './use-scroll'
-import { ref } from '@vue/reactivity'
+<script>
+import useScroll from './use-scroll'
+import { ref } from 'vue'
 
 export default {
   name: 'scroll',

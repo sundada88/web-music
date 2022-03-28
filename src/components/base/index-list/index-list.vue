@@ -43,6 +43,7 @@ import { ref } from 'vue'
 
 export default {
   name: 'index-list',
+  emits: ['select'],
   props: {
     data: {
       type: Array,
@@ -54,10 +55,13 @@ export default {
   components: {
     scroll
   },
-  setup (props) {
+  setup (props, { emit }) {
     const scrollRef = ref(null)
     const { groupRef, onScroll, fixedTitle, fixedStyle, currentIndex } = useFixed(props)
     const { shortcutList, onShortcutTouchStart, onShortcutTouchMove } = useShortcut(props, groupRef, scrollRef)
+    const onItemClick = item => {
+      emit('select', item)
+    }
 
     return {
       scrollRef,
@@ -68,7 +72,8 @@ export default {
       currentIndex,
       shortcutList,
       onShortcutTouchStart,
-      onShortcutTouchMove
+      onShortcutTouchMove,
+      onItemClick
     }
   }
 }
