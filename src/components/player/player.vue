@@ -12,6 +12,13 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
       <div class="bottom">
+        <div class="progress-wrapper">
+          <span class="time time-l">{{ formatTime(currentTime) }}</span>
+          <div class="progress-bar-wrapper">
+            <progress-bar ref="barRef" :progress="progress"></progress-bar>
+          </div>
+          <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
+        </div>
         <div class="operators">
           <div class="icon i-left">
             <i :class="modeIcon" @click="changeMode"></i>
@@ -26,29 +33,37 @@
             <i @click="next" class="icon-next"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
+            <i @click="toggleFavorite(currentSong)" :class="getFavoriteIcon(currentSong)"></i>
           </div>
         </div>
       </div>
     </div>
     <!-- pause监听电脑休眠 -->
-    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error"></audio>
+    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
 <script>
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import ProgressBar from './progress-bar.vue'
+import { formatTime } from '@/assets/js/util'
 
 import useMode from './use-mode'
+import useFavorite from './use-favorite'
 
 export default {
   name: 'player',
+  components: {
+    ProgressBar
+  },
   setup () {
     const store = useStore()
 
     const audioRef = ref(null)
     const songReady = ref(false)
+
+    const currentTime = ref(0)
 
     const currentSong = computed(() => store.getters.currentSong)
     const currentIndex = computed(() => store.state.currentIndex)
@@ -59,7 +74,17 @@ export default {
     const playIcon = computed(() => playing.value ? 'icon-pause' : 'icon-play')
     const disableCls = computed(() => songReady.value ? '' : 'disable')
 
+    const progress = computed(() => {
+      return currentTime.value / currentSong.value.duration
+    })
+
+    // Mode 相关
     const { modeIcon, changeMode } = useMode()
+    // favorite 相关
+    const {
+      getFavoriteIcon,
+      toggleFavorite
+    } = useFavorite()
 
     function loop () {
       const audioEl = audioRef.value
@@ -117,6 +142,10 @@ export default {
       songReady.value = true
     }
 
+    function updateTime (e) {
+      currentTime.value = e.target.currentTime
+    }
+
     watch(playing, (newVal) => {
       if (!songReady.value) return
       const audioEl = audioRef.value
@@ -129,6 +158,7 @@ export default {
 
     watch(currentSong, (newSong) => {
       if (!newSong.id || !newSong.url) return
+      currentTime.value = 0
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
@@ -148,8 +178,17 @@ export default {
       next,
       ready,
       error,
+      // mode
       modeIcon,
-      changeMode
+      changeMode,
+      // favorite
+      getFavoriteIcon,
+      toggleFavorite,
+      currentTime,
+      // progress
+      progress,
+      updateTime,
+      formatTime
     }
   }
 }
