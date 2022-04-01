@@ -15,7 +15,12 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
-            <progress-bar ref="barRef" :progress="progress"></progress-bar>
+            <progress-bar
+              ref="barRef"
+              :progress="progress"
+              @progress-changed="onProgressChanged"
+              @progress-changing="onProgressChanging"
+            ></progress-bar>
           </div>
           <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
         </div>
@@ -39,7 +44,14 @@
       </div>
     </div>
     <!-- pause监听电脑休眠 -->
-    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+    <audio
+      ref="audioRef"
+      @pause="pause"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+      @ended="end"
+    ></audio>
   </div>
 </template>
 
@@ -48,6 +60,7 @@ import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import ProgressBar from './progress-bar.vue'
 import { formatTime } from '@/assets/js/util'
+import { PLAY_MODE } from '@/assets/js/constant.js'
 
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
@@ -62,13 +75,14 @@ export default {
 
     const audioRef = ref(null)
     const songReady = ref(false)
-
     const currentTime = ref(0)
+    let progressChanging = false
 
     const currentSong = computed(() => store.getters.currentSong)
     const currentIndex = computed(() => store.state.currentIndex)
     const fullScreen = computed(() => store.state.fullScreen)
     const playing = computed(() => store.state.playing)
+    const playMode = computed(() => store.state.playMode)
 
     const playList = computed(() => store.state.playList)
     const playIcon = computed(() => playing.value ? 'icon-pause' : 'icon-play')
@@ -86,10 +100,30 @@ export default {
       toggleFavorite
     } = useFavorite()
 
+    watch(playing, (newVal) => {
+      if (!songReady.value) return
+      const audioEl = audioRef.value
+      if (newVal) {
+        audioEl.play()
+      } else {
+        audioEl.pause()
+      }
+    })
+
+    watch(currentSong, (newSong) => {
+      if (!newSong.id || !newSong.url) return
+      currentTime.value = 0
+      songReady.value = false
+      const audioEl = audioRef.value
+      audioEl.src = newSong.url
+      audioEl.play()
+    })
+
     function loop () {
       const audioEl = audioRef.value
       audioEl.currentTime = 0
       audioEl.play()
+      store.commit('setPlayingStatus', true)
     }
 
     function goBack () {
@@ -142,28 +176,34 @@ export default {
       songReady.value = true
     }
 
+    function end () {
+      currentTime.value = 0
+      if (playMode.value === PLAY_MODE.loop) {
+        loop()
+      } else {
+        next()
+      }
+    }
+
     function updateTime (e) {
+      if (progressChanging) return
       currentTime.value = e.target.currentTime
     }
 
-    watch(playing, (newVal) => {
-      if (!songReady.value) return
-      const audioEl = audioRef.value
-      if (newVal) {
-        audioEl.play()
-      } else {
-        audioEl.pause()
-      }
-    })
+    function onProgressChanging (progress) {
+      progressChanging = true
+      // 修改前面显示的时间
+      currentTime.value = currentSong.value.duration * progress
+    }
 
-    watch(currentSong, (newSong) => {
-      if (!newSong.id || !newSong.url) return
-      currentTime.value = 0
-      songReady.value = false
-      const audioEl = audioRef.value
-      audioEl.src = newSong.url
-      audioEl.play()
-    })
+    function onProgressChanged (progress) {
+      progressChanging = false
+      // 真实的修改播放器的时间
+      audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+      if (!playing.value) {
+        store.commit('setPlayingStatus', true)
+      }
+    }
 
     return {
       currentSong,
@@ -178,6 +218,7 @@ export default {
       next,
       ready,
       error,
+      end,
       // mode
       modeIcon,
       changeMode,
@@ -188,7 +229,9 @@ export default {
       // progress
       progress,
       updateTime,
-      formatTime
+      formatTime,
+      onProgressChanging,
+      onProgressChanged
     }
   }
 }
