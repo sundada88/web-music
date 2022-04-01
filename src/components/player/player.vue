@@ -11,6 +11,15 @@
         <h1 class="title">{{ currentSong.name }}</h1>
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
+      <div class="middle">
+        <div class="middle-l">
+          <div class="cd-wrapper">
+            <div ref="wrapperRef" class="cd">
+              <img ref="cdRef" :src="currentSong.pic" class="image" :class="addCls" />
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="bottom">
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
@@ -64,6 +73,7 @@ import { PLAY_MODE } from '@/assets/js/constant.js'
 
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import useCd from './use-cd'
 
 export default {
   name: 'player',
@@ -99,6 +109,9 @@ export default {
       getFavoriteIcon,
       toggleFavorite
     } = useFavorite()
+    // cd
+
+    const { addCls, wrapperRef, cdRef } = useCd()
 
     watch(playing, (newVal) => {
       if (!songReady.value) return
@@ -231,7 +244,11 @@ export default {
       updateTime,
       formatTime,
       onProgressChanging,
-      onProgressChanged
+      onProgressChanged,
+      // cd
+      addCls,
+      wrapperRef,
+      cdRef
     }
   }
 }
@@ -319,7 +336,7 @@ export default {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            img {
+            .image {
               position: absolute;
               left: 0;
               top: 0;
