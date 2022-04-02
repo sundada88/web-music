@@ -74,6 +74,7 @@ import { PLAY_MODE } from '@/assets/js/constant.js'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import useCd from './use-cd'
+import useLyric from './use-lyric'
 
 export default {
   name: 'player',
@@ -110,8 +111,10 @@ export default {
       toggleFavorite
     } = useFavorite()
     // cd
-
     const { addCls, wrapperRef, cdRef } = useCd()
+
+    // lyric
+    useLyric()
 
     watch(playing, (newVal) => {
       if (!songReady.value) return

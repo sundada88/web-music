@@ -16,3 +16,19 @@ export function processSongs (songs) {
       })
   })
 }
+
+const lyricMap = {}
+
+export function getLyric (song) {
+  if (song.lyric) {
+    return Promise.resolve(song.lyric)
+  }
+  const { mid } = song
+  if (lyricMap[mid]) return Promise.resolve(lyricMap[mid])
+  return get('/api/getLyric', { mid }).then(result => {
+    const lyric = result ? result.lyric : '[00:00:00]该歌曲暂时无法获取歌词'
+    console.log('lyric ---> ', lyric)
+    lyricMap[mid] = lyric
+    return lyric
+  })
+}
