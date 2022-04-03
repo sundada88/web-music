@@ -12,13 +12,28 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
       <div class="middle">
-        <div class="middle-l">
+        <div class="middle-l" v-show="false">
           <div class="cd-wrapper">
             <div ref="wrapperRef" class="cd">
               <img ref="cdRef" :src="currentSong.pic" class="image" :class="addCls" />
             </div>
           </div>
         </div>
+        <scroll ref="lyricScrollRef" class="middle-r">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric" ref="lyricListRef">
+              <p
+                class="text"
+                :class="{ 'current': currentLineNum === index }"
+                v-for="(line, index) in currentLyric.lines"
+                :key="line.num"
+              >{{ line.txt }}</p>
+            </div>
+            <!-- <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{ pureMusicLyric }}</p>
+            </div>-->
+          </div>
+        </scroll>
       </div>
       <div class="bottom">
         <div class="progress-wrapper">
@@ -67,7 +82,10 @@
 <script>
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+
 import ProgressBar from './progress-bar.vue'
+import Scroll from '@/components/base/scroll/scroll'
+
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/constant.js'
 
@@ -79,7 +97,8 @@ import useLyric from './use-lyric'
 export default {
   name: 'player',
   components: {
-    ProgressBar
+    ProgressBar,
+    Scroll
   },
   setup () {
     const store = useStore()
@@ -114,14 +133,16 @@ export default {
     const { addCls, wrapperRef, cdRef } = useCd()
 
     // lyric
-    useLyric()
+    const { currentLyric, currentLineNum, playLyric, stopLyric, lyricScrollRef, lyricListRef } = useLyric({ songReady, currentTime })
 
     watch(playing, (newVal) => {
       if (!songReady.value) return
       const audioEl = audioRef.value
       if (newVal) {
+        playLyric()
         audioEl.play()
       } else {
+        stopLyric()
         audioEl.pause()
       }
     })
@@ -186,6 +207,7 @@ export default {
     function ready () {
       if (songReady.value) return
       songReady.value = true
+      playLyric()
     }
 
     function error () {
@@ -210,6 +232,9 @@ export default {
       progressChanging = true
       // 修改前面显示的时间
       currentTime.value = currentSong.value.duration * progress
+
+      playLyric()
+      stopLyric()
     }
 
     function onProgressChanged (progress) {
@@ -219,6 +244,8 @@ export default {
       if (!playing.value) {
         store.commit('setPlayingStatus', true)
       }
+
+      playLyric()
     }
 
     return {
@@ -251,7 +278,14 @@ export default {
       // cd
       addCls,
       wrapperRef,
-      cdRef
+      cdRef,
+      // lyric
+      currentLyric,
+      currentLineNum,
+      playLyric,
+      stopLyric,
+      lyricScrollRef,
+      lyricListRef
     }
   }
 }
