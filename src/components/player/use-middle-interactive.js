@@ -10,9 +10,24 @@ export default function useInterActive () {
 
   function onMiddleTouchStart (e) {
     touch.startX = e.touches[0].pageX
+    touch.startY = e.touches[0].pageY
+    touch.directionLock = ''
   }
   function onMiddleTouchMove (e) {
     const deltaX = e.touches[0].pageX - touch.startX
+    const deltaY = e.touches[0].pageY - touch.startY
+
+    const absDeltaX = Math.abs(deltaX)
+    const absDeltaY = Math.abs(deltaY)
+
+    // console.log('absDeltaX', absDeltaX)
+    // console.log('absDeltaY', absDeltaY)
+    if (!touch.directionLock) {
+      touch.directionLock = absDeltaX >= absDeltaY ? 'h' : 'v'
+    }
+    console.log('touch.directionLock ---> ', touch.directionLock)
+    if (touch.directionLock === 'v') return
+
     const left = currentView === 'cd' ? 0 : -window.innerWidth
     const offsetWidth = Math.min(0, Math.max(left + deltaX, -window.innerWidth))
     touch.present = Math.abs(offsetWidth / window.innerWidth)
