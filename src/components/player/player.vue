@@ -11,15 +11,23 @@
         <h1 class="title">{{ currentSong.name }}</h1>
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
-      <div class="middle">
-        <div class="middle-l" v-show="false">
+      <div
+        class="middle"
+        @touchstart.prevent="onMiddleTouchStart"
+        @touchmove.prevent="onMiddleTouchMove"
+        @touchend.prevent="onMiddleTouchEnd"
+      >
+        <div class="middle-l" :style="middleLStyle">
           <div class="cd-wrapper">
             <div ref="wrapperRef" class="cd">
               <img ref="cdRef" :src="currentSong.pic" class="image" :class="addCls" />
             </div>
           </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{ playingLyric }}</div>
+          </div>
         </div>
-        <scroll ref="lyricScrollRef" class="middle-r">
+        <scroll ref="lyricScrollRef" class="middle-r" :style="middleRStyle">
           <div class="lyric-wrapper">
             <div v-if="currentLyric" ref="lyricListRef">
               <p
@@ -29,13 +37,17 @@
                 :key="line.num"
               >{{ line.txt }}</p>
             </div>
-            <!-- <div class="pure-music" v-show="pureMusicLyric">
+            <div class="pure-music" v-show="pureMusicLyric">
               <p>{{ pureMusicLyric }}</p>
-            </div>-->
+            </div>
           </div>
         </scroll>
       </div>
       <div class="bottom">
+        <div class="dot-wrapper">
+          <span class="dot" :class="{ 'active': currentShow === 'cd' }"></span>
+          <span class="dot" :class="{ 'active': currentShow === 'lyric' }"></span>
+        </div>
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
@@ -93,6 +105,7 @@ import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import useCd from './use-cd'
 import useLyric from './use-lyric'
+import useMiddleInteractive from './use-middle-interactive'
 
 export default {
   name: 'player',
@@ -133,7 +146,21 @@ export default {
     const { addCls, wrapperRef, cdRef } = useCd()
 
     // lyric
-    const { currentLyric, currentLineNum, playLyric, stopLyric, lyricScrollRef, lyricListRef } = useLyric({ songReady, currentTime })
+    const {
+      currentLyric, currentLineNum, playLyric, stopLyric, lyricScrollRef, lyricListRef,
+      pureMusicLyric,
+      playingLyric
+    } = useLyric({ songReady, currentTime })
+
+    const {
+
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
+    } = useMiddleInteractive()
 
     watch(playing, (newVal) => {
       if (!songReady.value) return
@@ -285,7 +312,16 @@ export default {
       playLyric,
       stopLyric,
       lyricScrollRef,
-      lyricListRef
+      lyricListRef,
+      pureMusicLyric,
+      playingLyric,
+      // middle
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
     }
   }
 }

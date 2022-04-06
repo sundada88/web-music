@@ -9,6 +9,8 @@ export default function usrLyric ({ songReady, currentTime }) {
   const currentLineNum = ref(0)
   const lyricScrollRef = ref(null)
   const lyricListRef = ref(null)
+  const playingLyric = ref('')
+  const pureMusicLyric = ref('')
 
   const currentSong = computed(() => store.getters.currentSong)
 
@@ -22,16 +24,24 @@ export default function usrLyric ({ songReady, currentTime }) {
     store.commit('addLyric', { song: newSong, lyric })
     if (currentSong.value.lyric !== lyric) return
     currentLyric.value = new Lyric(lyric, handleLyric)
-    console.log('currentLyric.value ------> ', currentLyric.value)
-    // 开始播放歌词，但是有两个异步过程:1. 获取 lyric 2. audio 标签的 canplay
-    // canplay ready 了
-    if (songReady.value) {
-      playLyric()
+    const hasLyric = currentLyric.value.lines.length
+    if (hasLyric) {
+      // 开始播放歌词，但是有两个异步过程:1. 获取 lyric 2. audio 标签的 canplay
+      // canplay ready 了
+      if (songReady.value) {
+        playLyric()
+      }
+    } else {
+      playingLyric.value = pureMusicLyric.value = lyric.replace(
+        /\[(\d{2}):(\d{2}):(\d{2})\]/g,
+        ''
+      )
     }
   })
 
-  function handleLyric ({ lineNum }) {
+  function handleLyric ({ lineNum, txt }) {
     currentLineNum.value = lineNum
+    playingLyric.value = txt
     const scrollComp = lyricScrollRef.value
     const listEl = lyricListRef.value
     if (lineNum > 5) {
@@ -59,6 +69,8 @@ export default function usrLyric ({ songReady, currentTime }) {
   return {
     currentLyric,
     currentLineNum,
+    pureMusicLyric,
+    playingLyric,
     playLyric,
     stopLyric,
     lyricScrollRef,
