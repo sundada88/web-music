@@ -4,15 +4,15 @@ import { useStore } from 'vuex'
 export default function useCd () {
   const store = useStore()
 
-  const wrapperRef = ref(null)
   const cdRef = ref(null)
+  const cdImageRef = ref(null)
 
   const playing = computed(() => store.state.playing)
   const addCls = computed(() => (playing.value ? 'playing' : ''))
 
   watch(playing, newVal => {
     if (!newVal) {
-      syncTransform(wrapperRef.value, cdRef.value)
+      syncTransform(cdRef.value, cdImageRef.value)
     }
   })
   function syncTransform (wrapper, inner) {
@@ -26,7 +26,7 @@ export default function useCd () {
 
   return {
     addCls,
-    wrapperRef,
+    cdImageRef,
     cdRef
   }
 }

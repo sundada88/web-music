@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="playList.length">
     <div class="normal-player" v-show="fullScreen">
       <div class="background">
         <img :src="currentSong.pic" />
@@ -13,14 +13,14 @@
       </div>
       <div
         class="middle"
-        @touchstart.prevent="onMiddleTouchStart"
-        @touchmove.prevent="onMiddleTouchMove"
+        @touchstart.prevent.passive="onMiddleTouchStart"
+        @touchmove.prevent.passive="onMiddleTouchMove"
         @touchend.prevent="onMiddleTouchEnd"
       >
         <div class="middle-l" :style="middleLStyle">
           <div class="cd-wrapper">
-            <div ref="wrapperRef" class="cd">
-              <img ref="cdRef" :src="currentSong.pic" class="image" :class="addCls" />
+            <div ref="cdRef" class="cd">
+              <img ref="cdImageRef" :src="currentSong.pic" class="image" :class="addCls" />
             </div>
           </div>
           <div class="playing-lyric-wrapper">
@@ -79,6 +79,7 @@
         </div>
       </div>
     </div>
+    <mini-player :progress="progress" :toggle-play="togglePlay"></mini-player>
     <!-- pause监听电脑休眠 -->
     <audio
       ref="audioRef"
@@ -92,11 +93,13 @@
 </template>
 
 <script>
+/* eslint-disable */
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ProgressBar from './progress-bar.vue'
 import Scroll from '@/components/base/scroll/scroll'
+import MiniPlayer from './mini-player.vue'
 
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/constant.js'
@@ -111,7 +114,8 @@ export default {
   name: 'player',
   components: {
     ProgressBar,
-    Scroll
+    Scroll,
+    MiniPlayer
   },
   setup () {
     const store = useStore()
@@ -143,7 +147,7 @@ export default {
       toggleFavorite
     } = useFavorite()
     // cd
-    const { addCls, wrapperRef, cdRef } = useCd()
+    const { addCls, cdImageRef, cdRef } = useCd()
 
     // lyric
     const {
@@ -283,6 +287,7 @@ export default {
       goBack,
       pause,
       playIcon,
+      playList,
       prev,
       togglePlay,
       next,
@@ -304,7 +309,7 @@ export default {
       onProgressChanged,
       // cd
       addCls,
-      wrapperRef,
+      cdImageRef,
       cdRef,
       // lyric
       currentLyric,
