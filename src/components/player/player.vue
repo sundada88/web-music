@@ -94,7 +94,7 @@
 
 <script>
 /* eslint-disable */
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ProgressBar from './progress-bar.vue'
@@ -121,6 +121,7 @@ export default {
     const store = useStore()
 
     const audioRef = ref(null)
+    const barRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(0)
     let progressChanging = false
@@ -165,6 +166,13 @@ export default {
       onMiddleTouchMove,
       onMiddleTouchEnd
     } = useMiddleInteractive()
+
+    watch(fullScreen, async (newFullScreen) => {
+      if (newFullScreen) {
+        await nextTick()
+        barRef.value.setOffset(progress.value)
+      }
+    })
 
     watch(playing, (newVal) => {
       if (!songReady.value) return
@@ -283,6 +291,7 @@ export default {
       currentSong,
       fullScreen,
       audioRef,
+      barRef,
       disableCls,
       goBack,
       pause,
