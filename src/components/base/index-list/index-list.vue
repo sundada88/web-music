@@ -18,8 +18,8 @@
     <!-- 右边的快速导航 -->
     <div
       class="shortcut"
-      @touchstart.prevent.stop.passive="onShortcutTouchStart"
-      @touchmove.prevent.stop.passive="onShortcutTouchMove"
+      @touchstart.stop.passive="onShortcutTouchStart"
+      @touchmove.stop.passive="onShortcutTouchMove"
       @touchend.prevent.stop
     >
       <ul>
