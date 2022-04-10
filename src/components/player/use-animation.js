@@ -3,8 +3,14 @@ import { addKeyFrameToHead } from '../../assets/js/dom'
 
 export default function useAnimation () {
   const cdWrapperRef = ref(null)
+  let entering = true
+  let leaving = true
 
   function enter (el, done) {
+    entering = true
+    if (leaving) {
+      afterLeave()
+    }
     const { x, y, scale } = getPosAndScale()
     const cdWrapperRefVal = cdWrapperRef.value
     cdWrapperRefVal.style.transition = 'all .6s cubic-bezier(0.45, 0, 0.55, 1)'
@@ -25,11 +31,17 @@ export default function useAnimation () {
     }
   }
   function afterEnter () {
+    console.log('afterEnter')
+    entering = false
     const cdWrapperRefVal = cdWrapperRef.value
     cdWrapperRefVal.style.transition = ''
-    cdWrapperRefVal.style.transform = ''
+    cdWrapperRefVal.style.animation = ''
   }
   function leave (el, done) {
+    leaving = true
+    if (entering) {
+      afterEnter()
+    }
     const { x, y, scale } = getPosAndScale()
     const cdWrapperRefVal = cdWrapperRef.value
     cdWrapperRefVal.style.transition = 'all .6s cubic-bezier(0.45, 0, 0.55, 1)'
@@ -41,6 +53,8 @@ export default function useAnimation () {
     }
   }
   function afterLeave () {
+    console.log('afterLeave')
+    leaving = false
     const cdWrapperRefVal = cdWrapperRef.value
     cdWrapperRefVal.style.transition = ''
     cdWrapperRefVal.style.transform = ''
