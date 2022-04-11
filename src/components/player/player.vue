@@ -87,7 +87,6 @@
         </div>
       </div>
     </transition>
-
     <mini-player :progress="progress" :toggle-play="togglePlay"></mini-player>
     <!-- pause监听电脑休眠 -->
     <audio
@@ -125,7 +124,7 @@ export default {
   components: {
     ProgressBar,
     Scroll,
-    MiniPlayer
+    MiniPlayer,
   },
   setup () {
     const store = useStore()
