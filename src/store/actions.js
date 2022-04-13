@@ -36,3 +36,41 @@ export function changeMode ({ commit, state, getters }, mode) {
   commit('setCurrentIndex', index)
   commit('setPlayMode', mode)
 }
+
+export function removeSong ({ commit, state }, song) {
+  const sequenceList = state.sequenceList.slice()
+  const playList = state.playList.slice()
+
+  const sequenceIndex = findIndex(sequenceList, song)
+  const playIndex = findIndex(playList, song)
+
+  if (sequenceIndex < 0 || playIndex < 0) {
+    return
+  }
+
+  // 更新currentIndex
+  let currentIndex = state.currentIndex
+  if (playIndex < currentIndex || currentIndex + 1 === playList.length) {
+    currentIndex--
+  }
+
+  sequenceList.splice(sequenceIndex, 1)
+  playList.splice(playIndex, 1)
+  commit('setSequenceList', sequenceList)
+  commit('setPlayList', playList)
+  commit('setCurrentIndex', currentIndex)
+  if (!playList.length) {
+    commit('setPlayingStatus', false)
+  }
+}
+
+export function clearSongList ({ commit }) {
+  commit('setSequenceList', [])
+  commit('setPlayList', [])
+  commit('setCurrentIndex', 0)
+  commit('setPlayingStatus', false)
+}
+
+function findIndex (list, song) {
+  return list.findIndex(item => item.id === song.id)
+}

@@ -211,6 +211,7 @@ export default {
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+      store.commit('setPlayingStatus', true)
     })
 
     function loop () {
@@ -237,9 +238,6 @@ export default {
         loop()
       } else {
         store.commit('setCurrentIndex', (currentIndex.value - 1 + playListVal.length) % (playListVal.length))
-        if (!playing.value) {
-          store.commit('setPlayingStatus', true)
-        }
       }
     }
 
@@ -251,9 +249,6 @@ export default {
         loop()
       } else {
         store.commit('setCurrentIndex', (currentIndex.value + 1) % (playList.value.length))
-        if (!playing.value) {
-          store.commit('setPlayingStatus', true)
-        }
       }
     }
 

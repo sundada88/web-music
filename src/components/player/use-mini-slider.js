@@ -47,6 +47,14 @@ export default function useMiddleSlider () {
         })
       }
     })
+
+    watch(playList, async newVal => {
+      if (sliderVal && sliderShow.value && newVal.length) {
+        await nextTick()
+        sliderVal.refresh()
+      }
+    })
+
     watch(currentIndex, newIndex => {
       if (sliderVal && sliderShow.value) {
         sliderVal.goToPage(newIndex, 0, 0)
