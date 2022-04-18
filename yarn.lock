@@ -8804,6 +8804,11 @@ thread-loader@^2.1.3:
     loader-utils "^1.1.0"
     neo-async "^2.6.0"
 
+throttle-debounce@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-4.0.1.tgz#f86656fe9c8a6b8218952ef36c3bf225089b1baf"
+  integrity sha512-s3PedbXdZtr8v3J5Sxd5T/GmWG80BcK5GVpwDdvgEaUXsaMqQe4zxgmC4TA7B8luSDCPxo3CeSBS3F9rF1CZwg==
+
 through2@^2.0.0:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.5.tgz#01c1e39eb31d07cb7d03a96a70823260b23132cd"
