@@ -25,7 +25,7 @@ export default function createDetailComponent (name, key, fetch) {
           res = data
         } else {
           const cache = storage.session.get(key)
-          if (cache && cache.mid === this.$route.params.id) {
+          if (cache && (cache.mid || cache.id + '') === this.$route.params.id) {
             res = cache
           }
         }
@@ -37,7 +37,7 @@ export default function createDetailComponent (name, key, fetch) {
       },
       title () {
         const data = this.computedData
-        return data && data.name
+        return data && (data.name || data.title)
       }
     },
     async created () {
