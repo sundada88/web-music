@@ -4,6 +4,7 @@ import singer from '@/views/singer'
 import tipList from '@/views/top-list'
 import search from '@/views/search'
 import singerDetail from '@/views/singer-detail'
+import album from '@/views/album'
 
 const routes = [
   {
@@ -12,7 +13,13 @@ const routes = [
   },
   {
     path: '/recommend',
-    component: recommend
+    component: recommend,
+    children: [
+      {
+        path: ':id',
+        component: album
+      }
+    ]
   },
   {
     path: '/singer',

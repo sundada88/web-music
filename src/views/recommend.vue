@@ -10,7 +10,7 @@
         <div class="recommend-list">
           <h1 class="list-title" v-show="!loading">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in albums" class="item" :key="item.id">
+            <li v-for="item in albums" class="item" :key="item.id" @click="selectItem(item)">
               <div class="icon">
                 <img width="60" height="60" v-lazy="item.pic" />
               </div>
@@ -23,13 +23,22 @@
         </div>
       </div>
     </scroll>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedAlbum"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script>
+import storage from 'good-storage'
+
 import slider from '@/components/base/slider/slider.vue'
 import scroll from '@/components/base/scroll/scroll.vue'
-import { getRecommend } from '../service/recomend'
+
+import { getRecommend } from '../service/recommend'
+import { ALBUM_KEY } from '@/assets/js/constant'
 
 export default {
   name: 'recommend',
@@ -37,7 +46,8 @@ export default {
     return {
       sliders: [],
       albums: [],
-      loadingText: 'baby 别急，在加载了......'
+      loadingText: 'baby 别急，在加载了......',
+      selectedAlbum: null
     }
   },
   components: {
@@ -53,6 +63,18 @@ export default {
     const result = await getRecommend()
     this.sliders = result.sliders
     this.albums = result.albums
+  },
+  methods: {
+    selectItem (album) {
+      this.selectedAlbum = album
+      this.cacheAlbum(album)
+      this.$router.push({
+        path: `/recommend/${album.id}`
+      })
+    },
+    cacheAlbum (album) {
+      storage.session.set(ALBUM_KEY, album)
+    }
   }
 }
 </script>
@@ -63,15 +85,18 @@ export default {
   width: 100%;
   top: 88px;
   bottom: 0;
+
   .recommend-content {
     height: 100%;
     overflow: hidden;
+
     .slider-wrapper {
       position: relative;
       width: 100%;
       height: 0;
       padding-top: 40%;
       overflow: hidden;
+
       .slider-content {
         position: absolute;
         left: 0;
@@ -80,6 +105,7 @@ export default {
         height: 100%;
       }
     }
+
     .recommend-list {
       .list-title {
         height: 65px;
@@ -88,6 +114,7 @@ export default {
         font-size: $font-size-medium;
         color: $color-theme;
       }
+
       .item {
         display: flex;
         box-sizing: border-box;
@@ -99,6 +126,7 @@ export default {
           width: 60px;
           padding-right: 20px;
         }
+
         .text {
           display: flex;
           flex-direction: column;
@@ -108,10 +136,12 @@ export default {
           overflow: hidden;
           font-size: $font-size-medium;
         }
+
         .name {
           margin-bottom: 10px;
           color: $color-text;
         }
+
         .title {
           color: $color-text-d;
         }

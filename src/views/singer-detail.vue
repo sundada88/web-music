@@ -5,62 +5,11 @@
 </template>
 
 <script>
+import createDetailComponent from '@/assets/js/create-detail-component.js'
 import { getSingerDetail } from '../service/singer'
-import { processSongs } from '../service/song'
-import storage from 'good-storage'
 import { SINGER_KEY } from '@/assets/js/constant.js'
 
-import MusicList from '@/components/music-list/music-list'
-
-export default {
-  name: 'singer-detail',
-  props: {
-    singer: Object
-  },
-  components: {
-    MusicList
-  },
-  data () {
-    return {
-      songs: [],
-      loading: true
-    }
-  },
-  computed: {
-    computedSinger () {
-      let res = null
-      const singer = this.singer
-      if (singer) {
-        res = singer
-      } else {
-        const cacheSinger = storage.session.get(SINGER_KEY)
-        if (cacheSinger && cacheSinger.mid === this.$route.params.id) {
-          res = cacheSinger
-        }
-      }
-      return res
-    },
-    pic () {
-      const singer = this.computedSinger
-      return singer && singer.pic
-    },
-    title () {
-      const singer = this.computedSinger
-      return singer && singer.name
-    }
-  },
-  async created () {
-    const singer = this.computedSinger
-    if (!singer) {
-      const path = this.$route.matched[0].path
-      this.$router.push({ path })
-      return
-    }
-    const result = await getSingerDetail(singer)
-    this.songs = await processSongs(result.songs)
-    this.loading = false
-  }
-}
+export default createDetailComponent('singer-detail', SINGER_KEY, getSingerDetail)
 </script>
 
 <style lang="scss" scoped>
