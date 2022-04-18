@@ -5,6 +5,7 @@ import tipList from '@/views/top-list'
 import search from '@/views/search'
 import singerDetail from '@/views/singer-detail'
 import album from '@/views/album'
+import topDetail from '@/views/top-detail'
 
 const routes = [
   {
@@ -33,7 +34,13 @@ const routes = [
   },
   {
     path: '/top-list',
-    component: tipList
+    component: tipList,
+    children: [
+      {
+        path: ':id',
+        component: topDetail
+      }
+    ]
   },
   {
     path: '/search',

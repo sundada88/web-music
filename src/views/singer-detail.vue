@@ -6,7 +6,7 @@
 
 <script>
 import createDetailComponent from '@/assets/js/create-detail-component.js'
-import { getSingerDetail } from '../service/singer'
+import { getSingerDetail } from '@/service/singer'
 import { SINGER_KEY } from '@/assets/js/constant.js'
 
 export default createDetailComponent('singer-detail', SINGER_KEY, getSingerDetail)
