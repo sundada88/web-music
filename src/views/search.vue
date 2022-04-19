@@ -3,7 +3,7 @@
     <div class="search-input-wrapper">
       <search-input v-model="query"></search-input>
     </div>
-    <div class="hot-keys">
+    <div class="hot-keys" v-show="!query">
       <h1 class="title">热门搜索</h1>
       <ul>
         <li class="item" v-for="item in hotKeys" :key="item.id" @click="addQuery(item.key)">
@@ -11,17 +11,22 @@
         </li>
       </ul>
     </div>
+    <div class="search-result" v-show="query">
+      <suggest :query="query"></suggest>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue'
+import Suggest from '@/components/base/search/suggest'
 import SearchInput from '../components/base/search/search-input.vue'
 import { getHotKeys } from '@/service/search'
 export default {
   name: 'search',
   components: {
-    SearchInput
+    SearchInput,
+    Suggest
   },
   setup () {
     const query = ref('')
