@@ -20,6 +20,7 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@better-scroll/pull-up": "^2.4.2",
     "@vue/cli-plugin-babel": "~4.5.9",
     "@vue/cli-plugin-eslint": "~4.5.9",
     "@vue/cli-plugin-router": "~4.5.9",

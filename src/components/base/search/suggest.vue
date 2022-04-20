@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" class="suggest" v-loading:[loadingText]="!singer && !songs.length">
+  <div ref="rootRef" class="suggest" v-loading:[loadingText]="loading" v-no-result:[noResultText]="noResult">
     <ul class="suggest-list">
       <li class="suggest-item" v-if="singer">
         <div class=" icon">
@@ -19,15 +19,16 @@
           </p>
         </div>
       </li>
-      <!-- <div class="suggest-item" v-loading:[loadingText]="pullUpLoading"></div> -->
+      <div class="suggest-item" v-loading:[loadingText]="pullUpLoading"></div>
     </ul>
   </div>
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
+import usePullUpLoad from './use-pull-up-load'
 
 export default {
   name: 'suggest',
@@ -43,10 +44,22 @@ export default {
     const songs = ref([])
     const hasMore = ref(true)
     const page = ref(1)
-    const loading = ref(true)
-
     const loadingText = ref('')
     const noResultText = ref('抱歉，暂无搜索结果')
+
+    const { scroll, isPullUpLoad, rootRef } = usePullUpLoad(searchMore)
+
+    const loading = computed(() => {
+      return !singer.value && !songs.value.length
+    })
+
+    const noResult = computed(() => {
+      return !singer.value && !songs.value.length && !hasMore.value
+    })
+
+    const pullUpLoading = computed(() => {
+      return isPullUpLoad.value && hasMore.value
+    })
 
     watch(() => props.query, async (newQuery) => {
       if (!newQuery) {
@@ -66,12 +79,30 @@ export default {
 
       // 获取歌曲的url
       const result = await search(props.query, page.value, props.showSinger)
-      console.log('result ---> ', result)
       // 通过url获取真实的歌曲信息
       songs.value = await processSongs(result.songs)
       singer.value = result.singer
       hasMore.value = result.hasMore
-      loading.value = false
+      await nextTick()
+      await makeItScroll()
+    }
+
+    async function searchMore () {
+      if (!hasMore.value) return
+      page.value++
+      const result = await search(props.query, page.value, props.showSinger)
+      // 通过url获取真实的歌曲信息
+      songs.value = songs.value.concat(await processSongs(result.songs))
+      hasMore.value = result.hasMore
+      await nextTick()
+      await makeItScroll()
+    }
+
+    async function makeItScroll () {
+      console.log('scroll.value.maxScrollY ---> ', scroll.value.maxScrollY)
+      if (scroll.value.maxScrollY >= -1) {
+        await searchMore()
+      }
     }
 
     return {
@@ -79,8 +110,11 @@ export default {
       songs,
       loadingText,
       noResultText,
-      loading
+      loading,
+      noResult,
+      pullUpLoading,
       // pullUpLoad
+      rootRef
     }
   }
 }
