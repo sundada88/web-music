@@ -47,7 +47,7 @@ export default {
     const loadingText = ref('')
     const noResultText = ref('抱歉，暂无搜索结果')
 
-    const { scroll, isPullUpLoad, rootRef } = usePullUpLoad(searchMore)
+    const manualLoading = ref(false)
 
     const loading = computed(() => {
       return !singer.value && !songs.value.length
@@ -60,6 +60,10 @@ export default {
     const pullUpLoading = computed(() => {
       return isPullUpLoad.value && hasMore.value
     })
+
+    const preventPullUp = computed(() => loading.value || manualLoading.value)
+
+    const { scroll, isPullUpLoad, rootRef } = usePullUpLoad(searchMore, preventPullUp)
 
     watch(() => props.query, async (newQuery) => {
       if (!newQuery) {
@@ -88,7 +92,7 @@ export default {
     }
 
     async function searchMore () {
-      if (!hasMore.value) return
+      if (!hasMore.value || !props.query) return
       page.value++
       const result = await search(props.query, page.value, props.showSinger)
       // 通过url获取真实的歌曲信息
@@ -101,7 +105,9 @@ export default {
     async function makeItScroll () {
       console.log('scroll.value.maxScrollY ---> ', scroll.value.maxScrollY)
       if (scroll.value.maxScrollY >= -1) {
+        manualLoading.value = true
         await searchMore()
+        manualLoading.value = false
       }
     }
 
