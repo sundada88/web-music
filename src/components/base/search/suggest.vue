@@ -1,7 +1,7 @@
 <template>
   <div ref="rootRef" class="suggest" v-loading:[loadingText]="loading" v-no-result:[noResultText]="noResult">
     <ul class="suggest-list">
-      <li class="suggest-item" v-if="singer">
+      <li class="suggest-item" v-if="singer" @click="selectSinger(singer)">
         <div class=" icon">
           <i class="icon-mine"></i>
         </div>
@@ -39,7 +39,7 @@ export default {
       default: true
     }
   },
-  emits: ['select-song'],
+  emits: ['select-song', 'select-singer'],
   setup (props, { emit }) {
     const singer = ref(null)
     const songs = ref([])
@@ -115,7 +115,9 @@ export default {
     function selectSong (song) {
       emit('select-song', song)
     }
-
+    function selectSinger (singer) {
+      emit('select-singer', singer)
+    }
     return {
       singer,
       songs,
@@ -125,6 +127,7 @@ export default {
       noResult,
       pullUpLoading,
       selectSong,
+      selectSinger,
       // pullUpLoad
       rootRef
     }

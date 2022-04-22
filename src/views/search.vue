@@ -11,28 +11,57 @@
         </li>
       </ul>
     </div>
-    <div class="search-result" v-show="query">
-      <suggest :query="query" @select-song="selectSong"></suggest>
+    <div class="search-history" v-show="searchHistory.length && !query">
+      <h1 class="title">
+        <span class="text">搜索历史</span>
+        <span class="clear">
+          <i class="icon-clear"></i>
+        </span>
+      </h1>
+      <search-list :searches="searchHistory"></search-list>
     </div>
+    <div class="search-result" v-show="query">
+      <suggest :query="query" @select-song="selectSong" @select-singer="selectSinger"></suggest>
+    </div>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedSinger"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import Suggest from '@/components/base/search/suggest'
-import SearchInput from '../components/base/search/search-input.vue'
-import { getHotKeys } from '@/service/search'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import storage from 'good-storage'
+
+import Suggest from '@/components/base/search/suggest'
+import SearchInput from '@/components/base/search/search-input.vue'
+import SearchList from '@/components/base/search-list/search-list.vue'
+import useSearchHistory from '@/components/base/search/use-search-history'
+
+import { getHotKeys } from '@/service/search'
+import { SINGER_KEY } from '@/assets/js/constant.js'
+
 export default {
   name: 'search',
   components: {
     SearchInput,
-    Suggest
+    Suggest,
+    SearchList
   },
   setup () {
     const store = useStore()
+    const router = useRouter()
     const query = ref('')
     const hotKeys = ref([])
+    const selectedSinger = ref(null)
+
+    const searchHistory = computed(() => store.state.searchHistory)
+
+    const { saveSearch } = useSearchHistory()
 
     function addQuery (key) {
       query.value = key
@@ -44,13 +73,30 @@ export default {
 
     function selectSong (song) {
       store.dispatch('addSong', song)
+      saveSearch(query.value)
+    }
+    function cacheSinger (singer) {
+      storage.session.set(SINGER_KEY, singer)
+    }
+
+    function selectSinger (singer) {
+      console.log('query.value ---> ', query.value)
+      selectedSinger.value = singer
+      cacheSinger(singer)
+      saveSearch(query.value)
+      router.push({
+        path: `/singer/${singer.mid}`
+      })
     }
 
     return {
       query,
       addQuery,
       hotKeys,
-      selectSong
+      selectSong,
+      selectSinger,
+      selectedSinger,
+      searchHistory
     }
   }
 }

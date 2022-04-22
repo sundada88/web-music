@@ -16,6 +16,7 @@ function deleteFromArray (arr, compare) {
   }
 }
 
+// item 就是需要存进来的数据, key 是 storage 中的 key 值， compare 是比较函数，为 true 存进去
 export function save (item, key, compare, maxLen) {
   const items = storage.get(key, [])
   // 如果 item 在 items 中的话，
