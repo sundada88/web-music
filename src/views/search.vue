@@ -18,7 +18,7 @@
           <i class="icon-clear"></i>
         </span>
       </h1>
-      <search-list :searches="searchHistory"></search-list>
+      <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearch"></search-list>
     </div>
     <div class="search-result" v-show="query">
       <suggest :query="query" @select-song="selectSong" @select-singer="selectSinger"></suggest>
@@ -61,7 +61,7 @@ export default {
 
     const searchHistory = computed(() => store.state.searchHistory)
 
-    const { saveSearch } = useSearchHistory()
+    const { saveSearch, deleteSearch } = useSearchHistory()
 
     function addQuery (key) {
       query.value = key
@@ -96,7 +96,8 @@ export default {
       selectSong,
       selectSinger,
       selectedSinger,
-      searchHistory
+      searchHistory,
+      deleteSearch
     }
   }
 }
