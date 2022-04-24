@@ -16,10 +16,12 @@
         <div class="search-history" v-show="searchHistory.length && !query">
           <h1 class="title">
             <span class="text">搜索历史</span>
-            <span class="clear">
+            <span class="clear" @click="showConfirm">
               <i class="icon-clear"></i>
             </span>
           </h1>
+          <confirm ref="confirmRef" text="是否清空所有搜索历史" confirm-btn-text="清空" @confirm="clearSearch">
+          </confirm>
           <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearch"></search-list>
         </div>
       </div>
@@ -46,6 +48,7 @@ import SearchInput from '@/components/base/search/search-input.vue'
 import SearchList from '@/components/base/search-list/search-list.vue'
 import useSearchHistory from '@/components/base/search/use-search-history'
 import Scroll from '@/components/wrap-scroll'
+import Confirm from '@/components/base/confirm/index'
 
 import { getHotKeys } from '@/service/search'
 import { SINGER_KEY } from '@/assets/js/constant.js'
@@ -56,7 +59,8 @@ export default {
     SearchInput,
     Suggest,
     SearchList,
-    Scroll
+    Scroll,
+    Confirm
   },
   setup () {
     const store = useStore()
@@ -65,10 +69,11 @@ export default {
     const hotKeys = ref([])
     const selectedSinger = ref(null)
     const scrollRef = ref(null)
+    const confirmRef = ref(null)
 
     const searchHistory = computed(() => store.state.searchHistory)
 
-    const { saveSearch, deleteSearch } = useSearchHistory()
+    const { saveSearch, deleteSearch, clearSearch } = useSearchHistory()
 
     function addQuery (key) {
       query.value = key
@@ -107,13 +112,20 @@ export default {
       })
     }
 
+    function showConfirm () {
+      confirmRef.value.show()
+    }
+
     return {
       scrollRef,
+      confirmRef,
       query,
       addQuery,
       hotKeys,
       selectSong,
       selectSinger,
+      clearSearch,
+      showConfirm,
       selectedSinger,
       searchHistory,
       deleteSearch
