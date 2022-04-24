@@ -3,23 +3,27 @@
     <div class="search-input-wrapper">
       <search-input v-model="query"></search-input>
     </div>
-    <div class="hot-keys" v-show="!query">
-      <h1 class="title">热门搜索</h1>
-      <ul>
-        <li class="item" v-for="item in hotKeys" :key="item.id" @click="addQuery(item.key)">
-          <span>{{ item.key }}</span>
-        </li>
-      </ul>
-    </div>
-    <div class="search-history" v-show="searchHistory.length && !query">
-      <h1 class="title">
-        <span class="text">搜索历史</span>
-        <span class="clear">
-          <i class="icon-clear"></i>
-        </span>
-      </h1>
-      <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearch"></search-list>
-    </div>
+    <scroll ref="scrollRef" class="search-content" v-show="!query">
+      <div>
+        <div class="hot-keys">
+          <h1 class="title">热门搜索</h1>
+          <ul>
+            <li class="item" v-for="item in hotKeys" :key="item.id" @click="addQuery(item.key)">
+              <span>{{ item.key }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="search-history" v-show="searchHistory.length && !query">
+          <h1 class="title">
+            <span class="text">搜索历史</span>
+            <span class="clear">
+              <i class="icon-clear"></i>
+            </span>
+          </h1>
+          <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearch"></search-list>
+        </div>
+      </div>
+    </scroll>
     <div class="search-result" v-show="query">
       <suggest :query="query" @select-song="selectSong" @select-singer="selectSinger"></suggest>
     </div>
@@ -32,7 +36,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import storage from 'good-storage'
@@ -41,6 +45,7 @@ import Suggest from '@/components/base/search/suggest'
 import SearchInput from '@/components/base/search/search-input.vue'
 import SearchList from '@/components/base/search-list/search-list.vue'
 import useSearchHistory from '@/components/base/search/use-search-history'
+import Scroll from '@/components/wrap-scroll'
 
 import { getHotKeys } from '@/service/search'
 import { SINGER_KEY } from '@/assets/js/constant.js'
@@ -50,7 +55,8 @@ export default {
   components: {
     SearchInput,
     Suggest,
-    SearchList
+    SearchList,
+    Scroll
   },
   setup () {
     const store = useStore()
@@ -58,6 +64,7 @@ export default {
     const query = ref('')
     const hotKeys = ref([])
     const selectedSinger = ref(null)
+    const scrollRef = ref(null)
 
     const searchHistory = computed(() => store.state.searchHistory)
 
@@ -70,6 +77,17 @@ export default {
     getHotKeys().then(res => {
       hotKeys.value = res.hotKeys
     })
+
+    watch(query, async (newQuery) => {
+      if (!newQuery) {
+        await nextTick()
+        refreshScroll()
+      }
+    })
+
+    function refreshScroll () {
+      scrollRef.value.scroll.refresh()
+    }
 
     function selectSong (song) {
       store.dispatch('addSong', song)
@@ -90,6 +108,7 @@ export default {
     }
 
     return {
+      scrollRef,
       query,
       addQuery,
       hotKeys,
@@ -116,58 +135,58 @@ export default {
     margin: 20px;
   }
 
-  // .search-content {
-  //   flex: 1;
-  //   overflow: hidden;
+  .search-content {
+    flex: 1;
+    overflow: hidden;
 
-  .hot-keys {
-    margin: 0 20px 20px 20px;
+    .hot-keys {
+      margin: 0 20px 20px 20px;
 
-    .title {
-      margin-bottom: 20px;
-      font-size: $font-size-medium;
-      color: $color-text-l;
-    }
-
-    .item {
-      display: inline-block;
-      padding: 5px 10px;
-      margin: 0 20px 10px 0;
-      border-radius: 6px;
-      background: $color-highlight-background;
-      font-size: $font-size-medium;
-      color: $color-text-d;
-    }
-  }
-
-  .search-history {
-    position: relative;
-    margin: 0 20px;
-
-    .title {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      font-size: $font-size-medium;
-      color: $color-text-l;
-
-      .text {
-        flex: 1;
+      .title {
+        margin-bottom: 20px;
+        font-size: $font-size-medium;
+        color: $color-text-l;
       }
 
-      .clear {
-        @include extend-click();
+      .item {
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 0 20px 10px 0;
+        border-radius: 6px;
+        background: $color-highlight-background;
+        font-size: $font-size-medium;
+        color: $color-text-d;
+      }
+    }
 
-        .icon-clear {
-          font-size: $font-size-medium;
-          color: $color-text-d;
+    .search-history {
+      position: relative;
+      margin: 0 20px;
+
+      .title {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        font-size: $font-size-medium;
+        color: $color-text-l;
+
+        .text {
+          flex: 1;
+        }
+
+        .clear {
+          @include extend-click();
+
+          .icon-clear {
+            font-size: $font-size-medium;
+            color: $color-text-d;
+          }
         }
       }
+
     }
 
   }
-
-  // }
 
   .search-result {
     flex: 1;
