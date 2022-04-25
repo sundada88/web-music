@@ -108,19 +108,24 @@ export default {
   width: 100%;
   height: 60px;
   background: $color-highlight-background;
+
   .cd-wrapper {
     flex: 0 0 40px;
     width: 40px;
     height: 40px;
     padding: 0 10px 0 20px;
+
     .cd {
       height: 100%;
       width: 100%;
+
       img {
         border-radius: 50%;
+
         &.playing {
           animation: rotate 10s linear infinite;
         }
+
         &.pause {
           animation-play-state: paused;
         }
@@ -135,21 +140,25 @@ export default {
     flex: 1;
     line-height: 20px;
     overflow: hidden;
+
     .slider-group {
       position: relative;
       overflow: hidden;
       white-space: nowrap;
+
       .slider-page {
         display: inline-block;
         width: 100%;
         transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
+
         .name {
           margin-bottom: 2px;
           @include no-wrap();
           font-size: $font-size-medium;
           color: $color-text;
         }
+
         .desc {
           @include no-wrap();
           font-size: $font-size-small;
@@ -158,16 +167,19 @@ export default {
       }
     }
   }
+
   .control {
     flex: 0 0 30px;
     width: 30px;
     padding: 0 10px;
+
     .icon-playlist {
       position: relative;
       top: -2px;
       font-size: 28px;
       color: $color-theme-d;
     }
+
     .icon-mini {
       position: absolute;
       left: 0;
@@ -176,10 +188,12 @@ export default {
       font-size: 32px;
     }
   }
+
   &.mini-enter-active,
   &.mini-leave-active {
     transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);
   }
+
   &.mini-enter-from,
   &.mini-leave-to {
     opacity: 0;
