@@ -11,6 +11,9 @@
         <div class="search-input-wrapper">
           <search-input v-model="query" placeholder="搜索歌曲"></search-input>
         </div>
+        <div v-show="!query">
+          <switchers :items="['最近播放', '搜索历史']" v-model="currentIndex"></switchers>
+        </div>
         <div class="search-result" v-show="query">
           <suggest :query="query" :show-singer="false">
           </suggest>
@@ -24,15 +27,19 @@
 import { ref } from 'vue'
 import SearchInput from '@/components/base/search/search-input'
 import Suggest from '@/components/base/search/suggest'
+import Switchers from '../base/switchers/switchers.vue'
 
 export default {
   name: 'add-song',
   components: {
-    SearchInput, Suggest
+    SearchInput,
+    Suggest,
+    Switchers
   },
   setup () {
     const visible = ref(false)
     const query = ref('')
+    const currentIndex = ref(0)
 
     function show () {
       visible.value = true
@@ -44,7 +51,8 @@ export default {
       visible,
       query,
       hide,
-      show
+      show,
+      currentIndex
     }
   }
 }
