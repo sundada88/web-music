@@ -14,38 +14,48 @@
         <div v-show="!query">
           <switchers :items="['最近播放', '搜索历史']" v-model="currentIndex"></switchers>
           <div class="list-wrapper">
-            <scroll v-if="currentIndex === 0" class="list-scroll">
+            <scrol ref="scrollRef" v-if="currentIndex === 0" class="list-scroll">
               <div class="list-inner">
-                <song-list :songs="playHistory"></song-list>
+                <song-list :songs="playHistory" @select="selectSongBySongList"></song-list>
               </div>
-            </scroll>
+            </scrol>
 
-            <scroll v-if="currentIndex === 1" class="list-scroll">
+            <scroll ref="scrollRef" v-if="currentIndex === 1" class="list-scroll">
               <div class="list-inner">
-                <search-list :searches="searchHistory" :showDelete="false">
+                <search-list :searches="searchHistory" :showDelete="false" @select="addQuery">
                 </search-list>
               </div>
             </scroll>
           </div>
         </div>
         <div class="search-result" v-show="query">
-          <suggest :query="query" :show-singer="false">
+          <suggest :query="query" :show-singer="false" @select-song="selectSongBySuggest">
           </suggest>
         </div>
+        <message ref="messageRef">
+          <div class="message-title">
+            <i class="icon-ok"></i>
+            <span class="text">1首歌曲已经添加到播放列表</span>
+          </div>
+        </message>
       </div>
     </transition>
   </teleport>
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
 import SearchInput from '@/components/base/search/search-input'
 import Suggest from '@/components/base/search/suggest'
 import Switchers from '../base/switchers/switchers.vue'
 import SearchList from '@/components/base/search-list/search-list'
 import SongList from '@/components/base/song-list/song-list'
 import Scroll from '../base/scroll/scroll.vue'
-import { useStore } from 'vuex'
+import Message from '@/components/base/message/message.vue'
+
+import useSearchHistory from '@/components/base/search/use-search-history.js'
 
 export default {
   name: 'add-song',
@@ -55,30 +65,68 @@ export default {
     SongList,
     Suggest,
     Switchers,
-    Scroll
+    Scroll,
+    Message
   },
   setup () {
     const store = useStore()
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
+    const scrollRef = ref(null)
+    const messageRef = ref(null)
+
+    const { saveSearch } = useSearchHistory()
+
     const searchHistory = computed(() => store.state.searchHistory)
     const playHistory = computed(() => store.state.playHistory)
 
-    function show () {
+    watch(query, async () => {
+      await nextTick()
+      refreshScroll()
+    })
+
+    async function show () {
       visible.value = true
+      await nextTick()
+      refreshScroll()
     }
     function hide () {
       visible.value = false
     }
+    function addQuery (s) {
+      query.value = s
+    }
+    function selectSongBySongList ({ song }) {
+      addSong(song)
+    }
+    function addSong (song) {
+      store.dispatch('addSong', song)
+      showMessage()
+    }
+    function selectSongBySuggest (song) {
+      addSong(song)
+      saveSearch(song)
+    }
+    function refreshScroll () {
+      scrollRef.value.scroll.refresh()
+    }
+    function showMessage () {
+      messageRef.value.show()
+    }
     return {
+      scrollRef,
+      messageRef,
       visible,
       query,
       hide,
       show,
       currentIndex,
       searchHistory,
-      playHistory
+      playHistory,
+      addQuery,
+      selectSongBySongList,
+      selectSongBySuggest
     }
   }
 }
