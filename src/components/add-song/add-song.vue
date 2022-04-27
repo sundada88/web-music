@@ -13,6 +13,20 @@
         </div>
         <div v-show="!query">
           <switchers :items="['最近播放', '搜索历史']" v-model="currentIndex"></switchers>
+          <div class="list-wrapper">
+            <scroll v-if="currentIndex === 0" class="list-scroll">
+              <div class="list-inner">
+                <song-list :songs="playHistory"></song-list>
+              </div>
+            </scroll>
+
+            <scroll v-if="currentIndex === 1" class="list-scroll">
+              <div class="list-inner">
+                <search-list :searches="searchHistory" :showDelete="false">
+                </search-list>
+              </div>
+            </scroll>
+          </div>
         </div>
         <div class="search-result" v-show="query">
           <suggest :query="query" :show-singer="false">
@@ -24,22 +38,32 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import SearchInput from '@/components/base/search/search-input'
 import Suggest from '@/components/base/search/suggest'
 import Switchers from '../base/switchers/switchers.vue'
+import SearchList from '@/components/base/search-list/search-list'
+import SongList from '@/components/base/song-list/song-list'
+import Scroll from '../base/scroll/scroll.vue'
+import { useStore } from 'vuex'
 
 export default {
   name: 'add-song',
   components: {
     SearchInput,
+    SearchList,
+    SongList,
     Suggest,
-    Switchers
+    Switchers,
+    Scroll
   },
   setup () {
+    const store = useStore()
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
+    const searchHistory = computed(() => store.state.searchHistory)
+    const playHistory = computed(() => store.state.playHistory)
 
     function show () {
       visible.value = true
@@ -52,7 +76,9 @@ export default {
       query,
       hide,
       show,
-      currentIndex
+      currentIndex,
+      searchHistory,
+      playHistory
     }
   }
 }

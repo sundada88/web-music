@@ -1,5 +1,10 @@
 import { load } from '../assets/js/arr-store'
-import { FAVORITE_KEY, PLAY_MODE, SEARCH_KEY } from '../assets/js/constant'
+import {
+  FAVORITE_KEY,
+  PLAY_MODE,
+  SEARCH_KEY,
+  PLAY_KEY
+} from '../assets/js/constant'
 
 const state = {
   // 顺序播放列表
@@ -16,7 +21,8 @@ const state = {
   fullScreen: false,
   // 收藏列表
   favoriteList: load(FAVORITE_KEY) || [],
-  searchHistory: load(SEARCH_KEY) || []
+  searchHistory: load(SEARCH_KEY) || [],
+  playHistory: load(PLAY_KEY) || []
 }
 
 export default state
