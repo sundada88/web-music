@@ -26,11 +26,11 @@ export default function useSlider (wrapperRef) {
     slider.value.destroy()
   })
   onActivated(() => {
-    scroll.value.enable()
-    scroll.value.refresh()
+    slider.value.enable()
+    slider.value.refresh()
   })
   onDeactivated(() => {
-    scroll.value.disable()
+    slider.value.disable()
   })
   return {
     slider,
