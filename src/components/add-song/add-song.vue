@@ -14,11 +14,11 @@
         <div v-show="!query">
           <switchers :items="['最近播放', '搜索历史']" v-model="currentIndex"></switchers>
           <div class="list-wrapper">
-            <scrol ref="scrollRef" v-if="currentIndex === 0" class="list-scroll">
+            <scroll ref="scrollRef" v-if="currentIndex === 0" class="list-scroll">
               <div class="list-inner">
                 <song-list :songs="playHistory" @select="selectSongBySongList"></song-list>
               </div>
-            </scrol>
+            </scroll>
 
             <scroll ref="scrollRef" v-if="currentIndex === 1" class="list-scroll">
               <div class="list-inner">

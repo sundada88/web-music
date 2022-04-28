@@ -6,6 +6,7 @@ import search from '@/views/search'
 import singerDetail from '@/views/singer-detail'
 import album from '@/views/album'
 import topDetail from '@/views/top-detail'
+import UserCenter from '@/views/user-center'
 
 const routes = [
   {
@@ -45,6 +46,12 @@ const routes = [
   {
     path: '/search',
     component: search
+  },
+  {
+    path: '/user',
+    components: {
+      user: UserCenter
+    }
   }
 ]
 

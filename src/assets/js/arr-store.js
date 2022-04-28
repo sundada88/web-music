@@ -43,3 +43,7 @@ export function clear (key) {
 export function load (key) {
   return storage.get(key)
 }
+
+export function saveAll (items, key) {
+  storage.set(key, items)
+}
