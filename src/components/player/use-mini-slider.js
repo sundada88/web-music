@@ -1,5 +1,13 @@
 import { computed } from '@vue/reactivity'
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  nextTick,
+  onActivated,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch
+} from 'vue'
 import { useStore } from 'vuex'
 import BScroll from '@better-scroll/core'
 import Slide from '@better-scroll/slide'
@@ -68,6 +76,13 @@ export default function useMiddleSlider () {
     }
   })
 
+  onActivated(() => {
+    scroll.value.enable()
+    scroll.value.refresh()
+  })
+  onDeactivated(() => {
+    scroll.value.disable()
+  })
   return {
     slider,
     sliderWrapperRef

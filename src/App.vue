@@ -1,13 +1,17 @@
 <template>
   <m-header></m-header>
   <tab></tab>
-  <router-view :style="scrollStyle"></router-view>
-  <router-view :style="scrollStyle" name="user" v-slot="{ Component }">
-    <!-- <keep-alive> -->
-    <transition appear name="slide">
+  <router-view :style="scrollStyle" v-slot="{ Component }">
+    <keep-alive>
       <component :is="Component" />
-    </transition>
-    <!-- </keep-alive> -->
+    </keep-alive>
+  </router-view>
+  <router-view :style="scrollStyle" name="user" v-slot="{ Component }">
+    <keep-alive>
+      <transition appear name="slide">
+        <component :is="Component" />
+      </transition>
+    </keep-alive>
   </router-view>
   <player></player>
 </template>
